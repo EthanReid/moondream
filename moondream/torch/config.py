@@ -4,7 +4,8 @@ from typing import Dict, List, Optional
 
 @dataclass(frozen=True)
 class TextConfig:
-    dim: int = 2048
+    dim: int = 2048,
+    inner_dim: int = 8192,
     n_layers: int = 24
     vocab_size: int = 51200
     max_context: int = 2048
