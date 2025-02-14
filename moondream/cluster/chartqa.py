@@ -7,6 +7,9 @@ import io
 import base64
 import json
 from tqdm import tqdm
+from transformers import AutoProcessor, AutoModel, SiglipModel
+from torchvision import transforms
+
 
 # Import your model configuration, model, and weight-loading utility.
 from ..torch.config import MoondreamConfig
@@ -51,16 +54,48 @@ def pil_to_base64(image):
 # Uncomment and adjust the model name if you prefer using siglip.
 #
 # from transformers import AutoProcessor, AutoModel
-# siglip_processor = AutoProcessor.from_pretrained("huggingface/siglip-model")
-# siglip_model = AutoModel.from_pretrained("huggingface/siglip-model")
+# siglip_processor = AutoProcessor.from_pretrained("google/siglip-so400m-patch14-384")
+# siglip_model = AutoModel.from_pretrained("google/siglip-so400m-patch14-384")
+siglip = SiglipModel.from_pretrained("google/siglip-so400m-patch14-384")
+# siglip_processor = AutoProcessor.from_pretrained("google/siglip-so400m-patch14-384")
+siglip.to("cuda")
+
+i_transform = transforms.Compose([
+    transforms.Resize((384, 384)),
+    transforms.ToTensor()
+])
+
+
+def pil_to_compressed_base64(image, max_size=(200, 200), quality=10):
+    """
+    Resize and compress the image, then convert to a base64 string.
+    
+    Args:
+      image (PIL.Image): The input image.
+      max_size (tuple): Maximum width and height.
+      quality (int): JPEG quality (1-95). Lower means more compression.
+      
+    Returns:
+      str: Base64-encoded JPEG image.
+    """
+    # Create a copy so as not to modify the original image.
+    img_copy = image.copy()
+    img_copy.thumbnail(max_size)  # This maintains aspect ratio.
+    
+    buffer = io.BytesIO()
+    # Save as JPEG with reduced quality.
+    img_copy.save(buffer, format="JPEG", quality=quality)
+    encoded = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return f"data:image/jpeg;base64,{encoded}"
+
+def get_image_embedding(image):
+    with torch.no_grad():
+        pixel_values = i_transform(image).unsqueeze(0).to("cuda")
+        # Adjust pooling as necessary for your siglip model.
+        embedding = siglip.get_image_features(pixel_values=pixel_values)
+    return embedding
 #
-# def get_image_embedding(image):
-#     inputs = siglip_processor(image, return_tensors="pt")
-#     with torch.no_grad():
-#         # Adjust pooling as necessary for your siglip model.
-#         embedding = siglip_model(**inputs).last_hidden_state.mean(dim=1)
-#     return embedding
-#
+
 # Then, in the code below you can replace model.encode_image(image) with get_image_embedding(image).
 
 # --- Evaluation Function ---
@@ -143,10 +178,10 @@ def cluster_wrong_samples(model, dataset, results, min_cluster_size=3):
         wrong_qas = [qa for qa in row_results if not qa["is_correct"]]
         if wrong_qas:
             # Use model.encode_image or get_image_embedding(row["image"]) if using siglip.
-            embedding = model.encode_image(row["image"])
+            embedding = get_image_embedding(row["image"])#model.encode_image(row["image"])
             # Convert the embedding to a list (make sure to detach and move to CPU if needed)
             embedding_np = embedding.detach().cpu().numpy().tolist()
-            image_b64 = pil_to_base64(row["image"])
+            image_b64 = pil_to_compressed_base64(row["image"], max_size=(400,400), quality=15)
             wrong_samples.append({
                 "image_base64": image_b64,
                 "embedding": embedding_np,
@@ -159,6 +194,7 @@ def cluster_wrong_samples(model, dataset, results, min_cluster_size=3):
     # Stack embeddings into a NumPy array for clustering.
     embeddings = np.array([sample["embedding"] for sample in wrong_samples])
     clusterer = hdbscan.HDBSCAN(min_cluster_size=min_cluster_size)
+    embeddings = embeddings.squeeze(1)
     labels = clusterer.fit_predict(embeddings)
 
     # Add cluster labels to each sample.
@@ -204,7 +240,7 @@ if __name__ == "__main__":
     # Cluster the wrong samples.
     dataset = eval_stats["dataset"]
     results = eval_stats["results"]
-    clusters = cluster_wrong_samples(model, dataset, results, min_cluster_size=3)
+    clusters = cluster_wrong_samples(model, dataset, results, min_cluster_size=10)
 
     # Save the clusters as JSON.
     with open(args.output_json, "w") as f:
