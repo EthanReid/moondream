@@ -444,8 +444,9 @@ class MoondreamModel(nn.Module):
         _, hidden, next_token, pos = self._prefill_prompt(prompt_tokens, image.pos)
         hidden = hidden[:, -1:, :]
 
+        # Bumped it to a large number
         objects = self._generate_points(
-            hidden, next_token, pos, include_size=True, max_points=50
+            hidden, next_token, pos, include_size=True, max_points=1000
         )
 
         return {"objects": objects}
