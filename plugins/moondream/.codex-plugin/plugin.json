@@ -1,0 +1,37 @@
+{
+  "name": "moondream",
+  "version": "0.1.0",
+  "description": "Guided Moondream Python inference and Lens finetuning workflows.",
+  "author": {
+    "name": "M87 Labs",
+    "url": "https://moondream.ai/"
+  },
+  "homepage": "https://docs.moondream.ai/",
+  "repository": "https://github.com/m87-labs/moondream",
+  "license": "Apache-2.0",
+  "keywords": [
+    "moondream",
+    "vision-language-model",
+    "inference",
+    "finetuning",
+    "lens"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Moondream",
+    "shortDescription": "Use Moondream for inference and guided Lens finetunes.",
+    "longDescription": "A guided skill for using the PyPI moondream package with Cloud API inference, Photon local inference, and Lens finetuning loops with dataset splitting, metrics, checkpointing, and monitoring.",
+    "developerName": "M87 Labs",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://moondream.ai/",
+    "defaultPrompt": [
+      "Use Moondream to detect objects in my images.",
+      "Guide a Moondream Lens finetune from my dataset.",
+      "Evaluate a saved Moondream checkpoint."
+    ]
+  }
+}

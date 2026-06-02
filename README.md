@@ -24,6 +24,24 @@ The project offers two model variants:
 
 Moondream can be run locally, or in the cloud. Please refer to the [Getting Started](https://moondream.ai/c/docs/quickstart) page for details.
 
+## Agent skill
+
+This repo includes a `moondream` agent skill for Claude Code and Codex under [`plugins/moondream`](plugins/moondream). It guides use of the PyPI `moondream` package for inference and Lens finetuning, including dataset splits, metrics logging, checkpointing, and training health checks.
+
+Claude Code:
+
+```bash
+/plugin marketplace add m87-labs/moondream
+/plugin install moondream@moondream
+```
+
+Codex:
+
+```bash
+codex plugin marketplace add m87-labs/moondream
+codex plugin add moondream@moondream
+```
+
 ## Special thanks
 
 * [Modal](https://modal.com/?utm_source=github&utm_medium=github&utm_campaign=moondream) - Modal lets you run jobs in the cloud, by just writing a few lines of Python. Here's an [example of how to run Moondream on Modal](https://github.com/m87-labs/moondream-examples/tree/main/quickstart/modal).

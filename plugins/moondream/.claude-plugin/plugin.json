@@ -1,0 +1,11 @@
+{
+  "name": "moondream",
+  "description": "Guided Moondream Python inference and Lens finetuning workflows.",
+  "version": "0.1.0",
+  "author": {
+    "name": "M87 Labs"
+  },
+  "homepage": "https://docs.moondream.ai/",
+  "repository": "https://github.com/m87-labs/moondream",
+  "license": "Apache-2.0"
+}

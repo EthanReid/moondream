@@ -1,0 +1,20 @@
+{
+  "name": "moondream",
+  "interface": {
+    "displayName": "Moondream"
+  },
+  "plugins": [
+    {
+      "name": "moondream",
+      "source": {
+        "source": "local",
+        "path": "./plugins/moondream"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_USE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

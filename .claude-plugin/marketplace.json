@@ -1,0 +1,15 @@
+{
+  "name": "moondream",
+  "owner": {
+    "name": "M87 Labs"
+  },
+  "description": "Moondream agent skills for Python inference and Lens finetuning.",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "moondream",
+      "description": "Use the PyPI moondream package for inference and guided Lens finetuning.",
+      "source": "./plugins/moondream"
+    }
+  ]
+}
